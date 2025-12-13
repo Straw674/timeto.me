@@ -1,15 +1,18 @@
 package me.timeto.app.ui.history.form
 
 import android.widget.NumberPicker
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -108,40 +111,111 @@ fun HistoryFormFs(
                     },
                 )
 
-                val timerItemsUi = state.timerItemsUi
-                val formTimeItemIdx: MutableState<Int> = remember {
-                    mutableStateOf(timerItemsUi.indexOfFirst { it.time == state.time })
+                val daysItemsUi = state.daysItemsUi
+                val hoursItemsUi = state.hoursItemsUi
+                val minutesItemsUi = state.minutesItemsUi
+
+                val selectedDayIndex: MutableState<Int> = remember {
+                    mutableIntStateOf(state.selectedDayIndex)
+                }
+                val selectedHour: MutableState<Int> = remember {
+                    mutableIntStateOf(state.selectedHour)
+                }
+                val selectedMinute: MutableState<Int> = remember {
+                    mutableIntStateOf(state.selectedMinute)
                 }
 
-                val formTimeItemIdxValue: Int = formTimeItemIdx.value
-                LaunchedEffect(formTimeItemIdxValue) {
-                    vm.setTime(timerItemsUi[formTimeItemIdxValue].time)
-                }
+                FormItemView(
+                    isFirst = false,
+                    isLast = false,
+                    modifier = Modifier,
+                    content = {
+                        Text(
+                            text = state.timeNote,
+                            color = c.secondaryText,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                        )
+                    },
+                )
 
                 FormItemView(
                     isFirst = false,
                     isLast = true,
                     modifier = Modifier,
                     content = {
-                        AndroidView(
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 80.dp),
-                            factory = { context ->
-                                NumberPicker(context).apply {
-                                    setOnValueChangedListener { _, _, new ->
-                                        formTimeItemIdx.value = new
+                                .padding(horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            // Days picker
+                            AndroidView(
+                                modifier = Modifier.weight(1.2f),
+                                factory = { context ->
+                                    NumberPicker(context).apply {
+                                        setOnValueChangedListener { _, _, new ->
+                                            selectedDayIndex.value = new
+                                            vm.setDayIndex(new)
+                                        }
+                                        displayedValues = daysItemsUi.map { it.title }.toTypedArray()
+                                        if (isSdkQPlus())
+                                            textSize = dpToPx(16f).toFloat()
+                                        wrapSelectorWheel = false
+                                        minValue = 0
+                                        maxValue = daysItemsUi.size - 1
+                                        value = selectedDayIndex.value
                                     }
-                                    displayedValues = timerItemsUi.map { it.title }.toTypedArray()
-                                    if (isSdkQPlus())
-                                        textSize = dpToPx(18f).toFloat()
-                                    wrapSelectorWheel = false
-                                    minValue = 0
-                                    maxValue = timerItemsUi.size - 1
-                                    value = formTimeItemIdx.value // Set last
                                 }
-                            }
-                        )
+                            )
+
+                            // Hours picker
+                            AndroidView(
+                                modifier = Modifier.weight(0.8f),
+                                factory = { context ->
+                                    NumberPicker(context).apply {
+                                        setOnValueChangedListener { _, _, new ->
+                                            selectedHour.value = new
+                                            vm.setHour(new)
+                                        }
+                                        displayedValues = hoursItemsUi.map { it.title }.toTypedArray()
+                                        if (isSdkQPlus())
+                                            textSize = dpToPx(18f).toFloat()
+                                        wrapSelectorWheel = true
+                                        minValue = 0
+                                        maxValue = hoursItemsUi.size - 1
+                                        value = selectedHour.value
+                                    }
+                                }
+                            )
+
+                            Text(
+                                text = ":",
+                                color = c.text,
+                                modifier = Modifier.padding(horizontal = 4.dp),
+                            )
+
+                            // Minutes picker
+                            AndroidView(
+                                modifier = Modifier.weight(0.8f),
+                                factory = { context ->
+                                    NumberPicker(context).apply {
+                                        setOnValueChangedListener { _, _, new ->
+                                            selectedMinute.value = new
+                                            vm.setMinute(new)
+                                        }
+                                        displayedValues = minutesItemsUi.map { it.title }.toTypedArray()
+                                        if (isSdkQPlus())
+                                            textSize = dpToPx(18f).toFloat()
+                                        wrapSelectorWheel = true
+                                        minValue = 0
+                                        maxValue = minutesItemsUi.size - 1
+                                        value = selectedMinute.value
+                                    }
+                                }
+                            )
+                        }
                     },
                 )
             }
