@@ -54,6 +54,10 @@ fun SummaryFs() {
         mutableStateOf(false)
     }
 
+    val isLineChartVisible = remember {
+        mutableStateOf(false)
+    }
+
     val (vm, state) = rememberVm {
         SummaryVm()
     }
@@ -194,6 +198,12 @@ fun SummaryFs() {
 
             if (isChartVisible.value)
                 SummaryChartView(state.goalsUi)
+
+            if (isLineChartVisible.value)
+                SummaryLineChartView(
+                    goalsUi = state.goalsUi,
+                    daysBarsUi = state.daysBarsUi,
+                )
         }
 
         VStack {
@@ -234,6 +244,17 @@ fun SummaryFs() {
                     contentDescription = "Pie Chart",
                     onClick = {
                         isChartVisible.value = !isChartVisible.value
+                        if (isChartVisible.value) isLineChartVisible.value = false
+                    },
+                )
+
+                FooterIconButton(
+                    icon = R.drawable.sf_chart_line_medium_regular,
+                    backgroundColor = if (isLineChartVisible.value) c.blue else c.transparent,
+                    contentDescription = "Line Chart",
+                    onClick = {
+                        isLineChartVisible.value = !isLineChartVisible.value
+                        if (isLineChartVisible.value) isChartVisible.value = false
                     },
                 )
 

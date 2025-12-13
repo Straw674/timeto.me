@@ -38,6 +38,7 @@ private struct SummarySheetInner: View {
     @Environment(\.dismiss) private var dismiss
     
     @State private var isChartVisible: Bool = false
+    @State private var isLineChartVisible: Bool = false
     
     var body: some View {
         
@@ -143,6 +144,14 @@ private struct SummarySheetInner: View {
                 SummaryChartView(activitiesUi: state.goalsUi)
                     .id(state)
             }
+            
+            if isLineChartVisible {
+                SummaryLineChartView(
+                    goalsUi: state.goalsUi,
+                    daysBarsUi: Array(state.daysBarsUi)
+                )
+                .id(state)
+            }
         }
         
         Spacer()
@@ -179,6 +188,9 @@ private struct SummarySheetInner: View {
                 Button(
                     action: {
                         isChartVisible.toggle()
+                        if isChartVisible {
+                            isLineChartVisible = false
+                        }
                     },
                     label: {
                         HStack {
@@ -191,6 +203,27 @@ private struct SummarySheetInner: View {
                         }
                         .frame(width: bottomBarButtonFrameSize, height: bottomBarButtonFrameSize)
                         .background(roundedShape.fill(isChartVisible ? .blue : .clear))
+                    }
+                )
+                
+                Button(
+                    action: {
+                        isLineChartVisible.toggle()
+                        if isLineChartVisible {
+                            isChartVisible = false
+                        }
+                    },
+                    label: {
+                        HStack {
+                            Image(systemName: "chart.xyaxis.line")
+                                .font(.system(
+                                    size: isLineChartVisible ? 20 : bottomBarButtonFontSize,
+                                    weight: bottomBarButtonFontWeight
+                                ))
+                                .foregroundColor(isLineChartVisible ? .white : bottomBarButtonFontColor)
+                        }
+                        .frame(width: bottomBarButtonFrameSize, height: bottomBarButtonFrameSize)
+                        .background(roundedShape.fill(isLineChartVisible ? .blue : .clear))
                     }
                 )
                 
