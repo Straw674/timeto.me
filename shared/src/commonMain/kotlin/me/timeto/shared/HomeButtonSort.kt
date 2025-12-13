@@ -14,7 +14,7 @@ data class HomeButtonSort(
 
     companion object {
 
-        const val visibleRows = 8
+        const val visibleRows = 12
 
         fun parseOrNull(string: String): HomeButtonSort? {
             val raw: List<Int> =
