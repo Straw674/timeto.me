@@ -24,6 +24,7 @@ class Goal2FormVm(
     data class State(
         val initGoalDb: Goal2Db?,
         val name: String,
+        val finishText: String,
         val seconds: Int,
         val secondsPickerItemsUi: List<SecondsPickerItemUi>,
         val parentGoalsUi: List<GoalUi>,
@@ -46,6 +47,7 @@ class Goal2FormVm(
             name.isNotBlank()
 
         val namePlaceholder = "Name"
+        val finishTextPlaceholder = "👍"
 
         val secondsTitle = "Time"
         val secondsNote: String =
@@ -117,6 +119,7 @@ class Goal2FormVm(
             State(
                 initGoalDb = initGoalDb,
                 name = tf.textNoFeatures,
+                finishText = initGoalDb?.finish_text ?: "👍",
                 seconds = seconds,
                 secondsPickerItemsUi = buildSecondsPickerItems(defSeconds = seconds),
                 parentGoalsUi = parentGoalsUi,
@@ -136,6 +139,10 @@ class Goal2FormVm(
 
     fun setName(newName: String) {
         state.update { it.copy(name = newName) }
+    }
+
+    fun setFinishText(newFinishText: String) {
+        state.update { it.copy(finishText = newFinishText) }
     }
 
     fun setSeconds(newSeconds: Int) {
@@ -197,6 +204,7 @@ class Goal2FormVm(
                     keepScreenOn = state.keepScreenOn,
                     pomodoroTimer = state.pomodoroTimer,
                     parentGoalDb = state.parentGoalUi?.goalDb,
+                    finishText = state.finishText,
                 )
             } else {
                 Goal2Db.insertWithValidation(
@@ -209,6 +217,7 @@ class Goal2FormVm(
                     pomodoroTimer = state.pomodoroTimer,
                     parentGoalDb = state.parentGoalUi?.goalDb,
                     type = Goal2Db.Type.general,
+                    finishText = state.finishText,
                 )
             }
 

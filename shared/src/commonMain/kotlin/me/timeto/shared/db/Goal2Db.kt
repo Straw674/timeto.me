@@ -102,6 +102,7 @@ data class Goal2Db(
             pomodoroTimer: Int,
             parentGoalDb: Goal2Db?,
             type: Type,
+            finishText: String,
         ): Goal2Db = dbIo {
             assertIsValidName(name)
             db.transactionWithResult {
@@ -116,7 +117,7 @@ data class Goal2Db(
                     seconds = seconds,
                     timer = timer,
                     period_json = period.toJson().toString(),
-                    finish_text = "👍",
+                    finish_text = finishText,
                     home_button_sort = HomeButtonSort.findNextPositionSync(
                         isHidden = false,
                         barSize = homeButtonsCellsCount,
@@ -224,6 +225,7 @@ data class Goal2Db(
         keepScreenOn: Boolean,
         pomodoroTimer: Int,
         parentGoalDb: Goal2Db?,
+        finishText: String,
     ): Goal2Db = dbIo {
         assertIsValidName(name)
         db.transactionWithResult {
@@ -247,7 +249,7 @@ data class Goal2Db(
                 seconds = seconds,
                 timer = timer,
                 period_json = period.toJson().toString(),
-                finish_text = finish_text,
+                finish_text = finishText,
                 home_button_sort = home_button_sort,
                 color_rgba = colorRgba.toRgbaString(),
                 keep_screen_on = keepScreenOn.toInt10(),

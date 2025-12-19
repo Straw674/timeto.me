@@ -214,6 +214,7 @@ private suspend fun addReadingGoal() {
         pomodoroTimer = 5 * 60,
         parentGoalDb = null,
         type = Goal2Db.Type.general,
+        finishText = "📚",
     )
     goalDb.updateHomeButtonSort(HomeButtonSort(rowIdx = 2, cellIdx = 4, size = 2))
 }
@@ -237,6 +238,7 @@ private suspend fun addWorkGoal() {
         pomodoroTimer = 5 * 60,
         parentGoalDb = null,
         type = Goal2Db.Type.general,
+        finishText = "💼",
     )
     goalDb.updateHomeButtonSort(HomeButtonSort(rowIdx = 1, cellIdx = 0, size = 6))
 }
@@ -260,6 +262,7 @@ private suspend fun addExercisesGoal() {
         pomodoroTimer = 5 * 60,
         parentGoalDb = null,
         type = Goal2Db.Type.general,
+        finishText = "💪",
     )
     goalDb.updateHomeButtonSort(HomeButtonSort(rowIdx = 2, cellIdx = 2, size = 2))
 }
@@ -285,6 +288,7 @@ private suspend fun addMorningGoalAndStartInterval(): IntervalDb {
         pomodoroTimer = 5 * 60,
         parentGoalDb = null,
         type = Goal2Db.Type.general,
+        finishText = "☀️",
     )
     goalDb.updateHomeButtonSort(HomeButtonSort(rowIdx = 0, cellIdx = 0, size = 3))
 
@@ -304,6 +308,7 @@ private suspend fun addEatingGoal() {
         pomodoroTimer = 5 * 60,
         parentGoalDb = null,
         type = Goal2Db.Type.general,
+        finishText = "🍴",
     )
     goalDb.updateHomeButtonSort(HomeButtonSort(rowIdx = 2, cellIdx = 0, size = 2))
 }
@@ -326,6 +331,7 @@ private suspend fun addCommuteGoal() {
         pomodoroTimer = 5 * 60,
         parentGoalDb = null,
         type = Goal2Db.Type.general,
+        finishText = "🚌",
     )
     goalDb.updateHomeButtonSort(HomeButtonSort(rowIdx = 0, cellIdx = 3, size = 3))
 }
@@ -352,6 +358,7 @@ private suspend fun addFreeTimeGoal() {
         pomodoroTimer = 5 * 60,
         parentGoalDb = null,
         type = Goal2Db.Type.other,
+        finishText = "🎮",
     )
     goalDb.updateHomeButtonSort(HomeButtonSort(rowIdx = 3, cellIdx = 0, size = 2))
 }
@@ -377,6 +384,7 @@ private suspend fun addSleepGoal() {
         pomodoroTimer = 5 * 60,
         parentGoalDb = null,
         type = Goal2Db.Type.general,
+        finishText = "😴",
     )
     goalDb.updateHomeButtonSort(HomeButtonSort(rowIdx = 3, cellIdx = 2, size = 4))
 }

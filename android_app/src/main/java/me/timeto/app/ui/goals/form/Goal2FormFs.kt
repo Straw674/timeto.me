@@ -22,6 +22,7 @@ import me.timeto.app.ui.ZStack
 import me.timeto.app.ui.c
 import me.timeto.app.ui.checklists.ChecklistsPickerFs
 import me.timeto.app.ui.color_picker.ColorPickerFs
+import me.timeto.app.ui.emoji.EmojiPickerFs
 import me.timeto.app.ui.form.FormHeader
 import me.timeto.app.ui.form.FormInput
 import me.timeto.app.ui.form.FormSwitch
@@ -110,6 +111,23 @@ fun Goal2FormFs(
                     isLast = false,
                     isAutoFocus = goalDb == null,
                     imeAction = ImeAction.Done,
+                )
+
+                FormButton(
+                    title = "Emoji",
+                    isFirst = false,
+                    isLast = false,
+                    note = state.finishText,
+                    withArrow = true,
+                    onClick = {
+                        navigationFs.push {
+                            EmojiPickerFs(
+                                onDone = { newEmoji ->
+                                    vm.setFinishText(newEmoji)
+                                },
+                            )
+                        }
+                    },
                 )
 
                 FormButton(
