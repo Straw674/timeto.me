@@ -12,8 +12,8 @@ class ColorPickerVm(
     companion object {
 
         fun prepCustomColorRgbaText(colorRgba: ColorRgba): String {
-            val (r, g, b) = listOf(colorRgba.r, colorRgba.g, colorRgba.b)
-            return "RGB: $r,$g,$b / #${r.toHex()}${g.toHex()}${b.toHex()}".uppercase()
+            val (h, s, l) = colorRgba.toHsl()
+            return "HSL: ${h.toInt()}°, ${s.toInt()}%, ${l.toInt()}%"
         }
     }
 
@@ -54,9 +54,6 @@ class ColorPickerVm(
 }
 
 ///
-
-private fun Int.toHex(): String =
-    toString(16).padStart(2, '0')
 
 private val palettes: List<Palette> = listOf(
     Palette.red,

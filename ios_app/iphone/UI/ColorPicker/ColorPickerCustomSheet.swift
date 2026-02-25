@@ -8,30 +8,43 @@ struct ColorPickerCustomSheet: View {
         onDone: @escaping (ColorRgba) -> Void
     ) {
         self.onDone = onDone
-        _colorRgb = State(initialValue: ColorRgbLocal(
-            r: initColorRgba.r.toDouble(),
-            g: initColorRgba.g.toDouble(),
-            b: initColorRgba.b.toDouble()
+        let hsl = initColorRgba.toHsl()
+        _colorHsl = State(initialValue: ColorHslLocal(
+            h: Double(hsl.h),
+            s: Double(hsl.s),
+            l: Double(hsl.l)
         ))
     }
     
     ///
     
-    @State private var colorRgb: ColorRgbLocal
+    @State private var colorHsl: ColorHslLocal
     private let onDone: (ColorRgba) -> Void
     
     @Environment(\.dismiss) private var dismiss
     
     private var colorRgba: ColorRgba {
-        ColorRgba(r: Int32(colorRgb.r), g: Int32(colorRgb.g), b: Int32(colorRgb.b), a: 255)
+        ColorRgba.companion.fromHsl(h: Float(colorHsl.h), s: Float(colorHsl.s), l: Float(colorHsl.l), a: 255)
     }
     
     var body: some View {
         VStack(alignment: .center) {
             Spacer()
-            ColorSliderView(color: .red, value: $colorRgb.r)
-            ColorSliderView(color: .green, value: $colorRgb.g)
-            ColorSliderView(color: .blue, value: $colorRgb.b)
+            ColorSliderView(
+                color: Color(hue: colorHsl.h / 360.0, saturation: 1.0, brightness: 1.0),
+                value: $colorHsl.h,
+                range: 0...360
+            )
+            ColorSliderView(
+                color: Color(hue: colorHsl.h / 360.0, saturation: colorHsl.s / 100.0, brightness: 0.5 + colorHsl.s / 200.0),
+                value: $colorHsl.s,
+                range: 0...100
+            )
+            ColorSliderView(
+                color: Color(hue: colorHsl.h / 360.0, saturation: 1.0, brightness: colorHsl.l / 100.0),
+                value: $colorHsl.l,
+                range: 0...100
+            )
             Spacer()
         }
         .toolbar {
@@ -73,21 +86,23 @@ struct ColorPickerCustomSheet: View {
 
 ///
 
-private struct ColorRgbLocal {
-    var r: Double
-    var g: Double
-    var b: Double
+private struct ColorHslLocal: Equatable {
+    var h: Double
+    var s: Double
+    var l: Double
 }
 
 private struct ColorSliderView: View {
     
     let color: Color
     @Binding var value: Double
+    var range: ClosedRange<Double>
     
     var body: some View {
-        Slider(value: $value, in: 0...255)
+        Slider(value: $value, in: range)
             .accentColor(color)
             .padding(.horizontal, H_PADDING)
             .padding(.vertical, 6)
     }
 }
+

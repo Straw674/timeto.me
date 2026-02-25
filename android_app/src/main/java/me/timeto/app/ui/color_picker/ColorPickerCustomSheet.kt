@@ -10,6 +10,8 @@ import androidx.compose.material.Slider
 import androidx.compose.material.SliderDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableFloatState
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,8 +44,13 @@ fun ColorPickerCustomSheet(
 
     val navigationLayer = LocalNavigationLayer.current
 
-    val colorRgba: MutableState<ColorRgba> =
-        remember { mutableStateOf(initColorRgba) }
+    val (initH, initS, initL) = initColorRgba.toHsl()
+    val hue = remember { mutableFloatStateOf(initH) }
+    val saturation = remember { mutableFloatStateOf(initS) }
+    val lightness = remember { mutableFloatStateOf(initL) }
+
+    val colorRgba: ColorRgba =
+        ColorRgba.fromHsl(hue.floatValue, saturation.floatValue, lightness.floatValue, initColorRgba.a)
 
     VStack {
 
@@ -80,12 +87,12 @@ fun ColorPickerCustomSheet(
 
                 Text(
                     text = ColorPickerVm.prepCustomColorRgbaText(
-                        colorRgba = colorRgba.value,
+                        colorRgba = colorRgba,
                     ),
                     modifier = Modifier
                         .align(Alignment.Center)
                         .clip(squircleShape)
-                        .background(colorRgba.value.toColor())
+                        .background(colorRgba.toColor())
                         .padding(
                             horizontal = 8.dp,
                             vertical = 4.dp,
@@ -101,7 +108,7 @@ fun ColorPickerCustomSheet(
                         .align(Alignment.CenterEnd)
                         .clip(squircleShape)
                         .clickable {
-                            onDone(colorRgba.value)
+                            onDone(colorRgba)
                             navigationLayer.close()
                         }
                         .padding(
@@ -113,28 +120,22 @@ fun ColorPickerCustomSheet(
                 )
             }
 
-            ColorSliderView(
-                initValue = colorRgba.value.r.toFloat(),
-                color = c.red,
-                onChange = { newValue ->
-                    colorRgba.value = colorRgba.value.copy(r = newValue.toInt())
-                },
+            HslSliderView(
+                value = hue,
+                valueRange = 0f..360f,
+                color = Color.hsl(hue.floatValue, 1f, 0.5f),
             )
 
-            ColorSliderView(
-                initValue = colorRgba.value.g.toFloat(),
-                color = c.green,
-                onChange = { newValue ->
-                    colorRgba.value = colorRgba.value.copy(g = newValue.toInt())
-                },
+            HslSliderView(
+                value = saturation,
+                valueRange = 0f..100f,
+                color = Color.hsl(hue.floatValue, saturation.floatValue / 100f, 0.5f),
             )
 
-            ColorSliderView(
-                initValue = colorRgba.value.b.toFloat(),
-                color = c.blue,
-                onChange = { newValue ->
-                    colorRgba.value = colorRgba.value.copy(b = newValue.toInt())
-                },
+            HslSliderView(
+                value = lightness,
+                valueRange = 0f..100f,
+                color = Color.hsl(hue.floatValue, 1f, lightness.floatValue / 100f),
             )
 
             ZStack(Modifier.navigationBarsPadding())
@@ -145,24 +146,21 @@ fun ColorPickerCustomSheet(
 ///
 
 @Composable
-private fun ColorSliderView(
-    initValue: Float,
+private fun HslSliderView(
+    value: MutableFloatState,
+    valueRange: ClosedFloatingPointRange<Float>,
     color: Color,
-    onChange: (Float) -> Unit,
 ) {
-    val value = remember { mutableStateOf(initValue) }
     Slider(
-        value = value.value,
-        onValueChange = {
-            value.value = it
-            onChange(it)
-        },
+        value = value.floatValue,
+        onValueChange = { value.floatValue = it },
         modifier = Modifier
             .padding(horizontal = H_PADDING - 6.dp),
-        valueRange = 0f..255f,
+        valueRange = valueRange,
         colors = SliderDefaults.colors(
             thumbColor = color,
             activeTrackColor = color,
         ),
     )
 }
+
