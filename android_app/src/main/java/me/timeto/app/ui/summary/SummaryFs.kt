@@ -8,7 +8,11 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -56,6 +60,10 @@ fun SummaryFs() {
 
     val isLineChartVisible = remember {
         mutableStateOf(false)
+    }
+
+    val highlightedGoalIds = remember {
+        mutableStateOf<Set<Int>?>(null)
     }
 
     val (vm, state) = rememberVm {
@@ -163,10 +171,19 @@ fun SummaryFs() {
                                                 .clip(roundedShape),
                                         ) {
                                             dayBarsUi.barsUi.forEach { barUi ->
+                                                val barGoalId = barUi.goalDb?.id
+                                                val isHighlighted = highlightedGoalIds.value == null ||
+                                                    (barGoalId != null && barGoalId in highlightedGoalIds.value!!)
+                                                val dimAlpha: Float by animateFloatAsState(
+                                                    targetValue = if (isHighlighted) 1f else 0.15f,
+                                                    animationSpec = tween(200),
+                                                    label = "barDim",
+                                                )
                                                 ZStack(
                                                     modifier = Modifier
                                                         .fillMaxWidth()
                                                         .weight(barUi.ratio)
+                                                        .alpha(dimAlpha)
                                                         .background(barUi.goalDb?.colorRgba?.toColor() ?: c.gray5),
                                                 )
                                             }
@@ -191,7 +208,15 @@ fun SummaryFs() {
                 ) {
 
                     state.goalsUi.forEach { goalUi ->
-                        GoalView(goalUi)
+                        GoalView(
+                            goalUi = goalUi,
+                            highlightedGoalIds = highlightedGoalIds.value,
+                            onGoalClick = { clickedGoalUi ->
+                                val ids = collectAllGoalIds(clickedGoalUi)
+                                highlightedGoalIds.value =
+                                    if (highlightedGoalIds.value == ids) null else ids
+                            },
+                        )
                     }
                 }
             }
@@ -376,12 +401,27 @@ private fun FooterIconButton(
 @Composable
 private fun GoalView(
     goalUi: SummaryVm.GoalUi,
+    highlightedGoalIds: Set<Int>?,
+    onGoalClick: (SummaryVm.GoalUi) -> Unit,
 ) {
     val goalColor = goalUi.goalDb.colorRgba.toColor()
+    val isSelected = highlightedGoalIds != null && goalUi.goalDb.id in highlightedGoalIds
+    val bgAlpha: Float by animateFloatAsState(
+        targetValue = if (isSelected) 1f else 0f,
+        animationSpec = tween(200),
+        label = "goalBg",
+    )
+    val highlightColor: Color by animateColorAsState(
+        targetValue = if (highlightedGoalIds != null && !isSelected) c.secondaryText.copy(alpha = 0.35f) else c.text,
+        animationSpec = tween(200),
+        label = "goalText",
+    )
 
     VStack(
         modifier = Modifier
-            .padding(top = 16.dp),
+            .background(goalColor.copy(alpha = bgAlpha * 0.15f), roundedShape)
+            .clickable { onGoalClick(goalUi) }
+            .padding(top = 16.dp, bottom = 8.dp, start = 6.dp, end = 6.dp),
     ) {
 
         HStack {
@@ -402,10 +442,10 @@ private fun GoalView(
                 modifier = Modifier
                     .weight(1f)
                     .padding(end = 4.dp),
-                color = c.text,
+                color = highlightColor,
                 fontSize = 14.sp,
                 lineHeight = 14.sp,
-                fontWeight = FontWeight.Medium,
+                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
             )
@@ -464,9 +504,21 @@ private fun GoalView(
                     .padding(start = 12.dp),
             ) {
                 goalUi.children.forEach { childrenGoalUi ->
-                    GoalView(childrenGoalUi)
+                    GoalView(
+                        goalUi = childrenGoalUi,
+                        highlightedGoalIds = highlightedGoalIds,
+                        onGoalClick = onGoalClick,
+                    )
                 }
             }
         }
     }
+}
+
+private fun collectAllGoalIds(goalUi: SummaryVm.GoalUi): Set<Int> {
+    val ids = mutableSetOf(goalUi.goalDb.id)
+    goalUi.children.forEach { child ->
+        ids.addAll(collectAllGoalIds(child))
+    }
+    return ids
 }
