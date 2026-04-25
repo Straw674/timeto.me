@@ -55,7 +55,7 @@ class TimerStateUi(
         val now: Int = time()
         val secondsToEnd: Int = intervalDb.id + intervalDb.timer - now
 
-        timerText = secondsToString(if (isPurple) (now - intervalDb.id) else secondsToEnd)
+        timerText = secondsToString(if (isPurple) secondsToEnd else (now - intervalDb.id))
         timerColor = when {
             isPurple -> ColorEnum.purple
             secondsToEnd < 0 -> ColorEnum.red
